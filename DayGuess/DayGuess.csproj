@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -9,5 +9,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.11" PrivateAssets="all" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /s /y bin\Release\net5.0\browser-wasm\publish\wwwroot\*.* &quot;$(SolutionDir)\docs\&quot;&#xD;&#xA;&#xD;&#xA;echo .&gt; &quot;$(SolutionDir)\docs\.nojekyll&quot;" />
+  </Target>
 
 </Project>
