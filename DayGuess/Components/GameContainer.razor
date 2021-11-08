@@ -1,0 +1,96 @@
+﻿<div class="game-container row vh-100 @BackgroundColor()">
+    <div class="date-container col-md-12 align-self-center text-center font-weight-bolder font-size-xl">
+        <div>@gameManager.Date.ToString("MMMM")</div>
+        <div>@gameManager.Date.Day</div>
+        <div>@gameManager.Date.Year</div>
+    </div>
+    <div class="btn-group-lg weekday-buttons col-md-12 align-self-center text-center">
+        <button type="button" class="@(ButtonStyle(0))" @onclick="@(e => Guess(DayOfWeek.Sunday))" disabled="@(!EnableButton(0))" >Sunday</button>
+        <button type="button" class="@(ButtonStyle(1))" @onclick="@(e => Guess(DayOfWeek.Monday))" disabled="@(!EnableButton(1))">Monday</button>
+        <button type="button" class="@(ButtonStyle(2))" @onclick="@(e => Guess(DayOfWeek.Tuesday))" disabled="@(!EnableButton(2))">Tuesday</button>
+        <button type="button" class="@(ButtonStyle(3))" @onclick="@(e => Guess(DayOfWeek.Wednesday))" disabled="@(!EnableButton(3))">Wednesday</button>
+        <button type="button" class="@(ButtonStyle(4))" @onclick="@(e => Guess(DayOfWeek.Thursday))" disabled="@(!EnableButton(4))">Thursday</button>
+        <button type="button" class="@(ButtonStyle(5))" @onclick="@(e => Guess(DayOfWeek.Friday))" disabled="@(!EnableButton(5))">Friday</button>
+        <button type="button" class="@(ButtonStyle(6))" @onclick="@(e => Guess(DayOfWeek.Saturday))" disabled="@(!EnableButton(6))">Saturday</button>
+    </div>
+    <div class="score col-md-12 align-self-center text-center font-size-lg">
+        <div>Correct: @gameManager.CorrectGuesses</div>
+        <div>Total Guesses: @gameManager.TotalGuesses</div>
+        <div>Average: @GameAverage()</div>
+        <div>Elapsed: @gameManager.Elapsed?.ToString(@"mm\:ss")</div>
+    </div>
+    <div class="controls col-md-12 align-self-center text-center">
+        <button type="submit" @onclick="@(e => gameManager.Start())">New Game</button>
+    </div>
+</div>
+
+@code {
+    GameManager gameManager = null;
+
+    public System.Threading.Timer timer = null;
+
+    protected string BackgroundColor()
+    {
+        if ((gameManager?.IsCorrect).HasValue)
+        {
+            return gameManager.IsCorrect.Value ? "game-correct" : "game-wrong";
+        }
+        return "game-started";
+    }
+
+    protected string GameAverage()
+    {
+        if (gameManager.GameCount == 0)
+        {
+            return "0%";
+        }
+        return ((int)(100 * ((float)gameManager.CorrectGuesses/(float)gameManager.TotalGuesses))).ToString() + "%";
+    }
+
+    protected bool EnableButton(int index)
+    {
+        return gameManager != null && gameManager.DayGuesses[index].GetValueOrDefault(true);
+    }
+
+    protected string ButtonStyle(int index)
+    {
+        if (gameManager != null && gameManager.DayGuesses[index].GetValueOrDefault(false))
+        {
+            return "btn btn-winner";
+        }
+        return "btn";
+    }
+
+    protected override void OnInitialized()
+    {
+        gameManager = new GameManager(this);
+    }
+
+    protected void Guess(DayOfWeek dayOfWeek)
+    {
+        gameManager.Guess(dayOfWeek);
+    }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        gameManager.Reset();
+    //    }
+    //    await base.OnAfterRenderAsync(firstRender);
+    //}
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            gameManager.Reset();
+            timer = new System.Threading.Timer(_ => Update(), null, 0, 1000);
+        }
+    }
+
+    public void Update() { StateHasChanged(); }
+}
+
+	
