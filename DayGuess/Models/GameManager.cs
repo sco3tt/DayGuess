@@ -19,9 +19,15 @@ namespace DayGuess.Models
 
 		private int range = 0;
 		private GameContainer container = null;
+		private DateTime? startTime = null;
 
-		public DateTime? StartTime { get; internal set; } = null;
+		public DateTime? StartTime { get => startTime; internal set { startTime = value; container?.Update(); } }
 		public DateTime? WinTime { get; internal set; } = null;
+		public bool HighlightDoomsday { get; set; } = false;
+		public bool JustThisRound { get; set; } = true;
+		public bool GuessDoomsday { get; set; } = false;
+		public int DoomsdayIndex { get; set; }
+
 		public GameManager(GameContainer container)
 		{
 			this.container = container;
@@ -39,12 +45,17 @@ namespace DayGuess.Models
 			range = (int)maxDate.Subtract(minDate).TotalDays;
 		}
 
-		public async Task Reset()
+		public void ResetStats()
 		{
 			GameCount = 0;
 			TotalGuesses = 0;
 			CorrectGuesses = 0;
-			await Start();
+			//await Start();
+		}
+
+		public void ResetTime()
+		{
+			StartTime = DateTime.Now;
 		}
 
 		public TimeSpan? Elapsed
@@ -62,13 +73,20 @@ namespace DayGuess.Models
 		public async Task Start()
 		{
 			StartTime = null;
+			if (JustThisRound)
+			{
+				HighlightDoomsday = false;
+			}
 			for (int i = 0; i < 10; i++)
 			{
 				int offset = new Random().Next(range);
 				Date = MinDate.AddDays(offset);
 				container.Update();
-				await Task.Delay(100);
+				await Task.Delay(75);
 			}
+
+			var tmp = new DateTime(Date.Year, 3, 14);
+			DoomsdayIndex = (int)(tmp.DayOfWeek);
 			IsCorrect = null;
 			DayGuesses = new bool?[7];
 			WinTime = null;
@@ -89,7 +107,7 @@ namespace DayGuess.Models
 				}
 
 				TotalGuesses++;
-				IsCorrect = Date.DayOfWeek == day;
+				IsCorrect = GuessDoomsday ? (int)day == DoomsdayIndex : Date.DayOfWeek == day;
 				if (IsCorrect.Value)
 				{
 					CorrectGuesses++;

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /s /y bin\Release\net5.0\browser-wasm\publish\wwwroot\*.* &quot;$(SolutionDir)\docs\&quot;&#xD;&#xA;&#xD;&#xA;echo .&gt; &quot;$(SolutionDir)\docs\.nojekyll&quot;&#xD;&#xA;echo * binary &gt; &quot;$(SolutionDir)\docs\.gitattributes&quot;&#xD;&#xA;" />
+    <Exec Command="if exist bin\Release\net5.0\browser-wasm\publish\wwwroot\ (&#xD;&#xA;  xcopy /s /y bin\Release\net5.0\browser-wasm\publish\wwwroot\*.* &quot;$(SolutionDir)\docs\&quot;&#xD;&#xA;)&#xD;&#xA;echo .&gt; &quot;$(SolutionDir)\docs\.nojekyll&quot;&#xD;&#xA;echo * binary &gt; &quot;$(SolutionDir)\docs\.gitattributes&quot;&#xD;&#xA;" />
   </Target>
 
 </Project>

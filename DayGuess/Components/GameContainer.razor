@@ -1,26 +1,79 @@
-﻿<div class="game-container row vh-100 @BackgroundColor()">
-    <div class="date-container col-md-12 align-self-center text-center font-weight-bolder font-size-xl">
-        <div>@gameManager.Date.ToString("MMMM")</div>
-        <div>@gameManager.Date.Day</div>
-        <div>@gameManager.Date.Year</div>
+﻿@layout DayGuess.Shared.MainLayout
+<div class="game-container row vh-100 @BackgroundColor()">
+    <div class="date-container col-md-12 align-self-center text-center">
+        <div class="font-size-lg font-weight-bold">
+            <a href="#" @onclick="@(e => gameManager.GuessDoomsday = !gameManager.GuessDoomsday)">
+                @(gameManager.GuessDoomsday ? "Doomsday Mode" : "Date Mode")
+            </a>
+        </div>
+        <div>
+            @{ if (gameManager.GuessDoomsday)
+                {
+                    <div>Identify the Doomsday (day of the week) for this year:</div>
+                }
+                else
+                {
+                    <div>Pick the weekday this date @(gameManager.Date <= DateTime.Now.Date ? "fe" : "will fa")ll on:</div>
+                }
+            }
+        </div>
+        @{ if (!gameManager.GuessDoomsday)
+            {
+                <div class="font-weight-bolder font-size-xl">@gameManager.Date.ToString("MMMM")&nbsp;@gameManager.Date.Day</div>
+            }
+        }
+        <div class="font-weight-bolder font-size-xl">@gameManager.Date.Year</div>
+        <div>&nbsp;</div>
+        <div><button type="submit" @onclick="@(e => gameManager.Start())">New @(gameManager.GuessDoomsday ? "Year" : "Date")</button></div>
     </div>
     <div class="btn-group-lg weekday-buttons col-md-12 align-self-center text-center">
-        <button type="button" class="@(ButtonStyle(0))" @onclick="@(e => Guess(DayOfWeek.Sunday))" disabled="@(!EnableButton(0))" >Sunday</button>
-        <button type="button" class="@(ButtonStyle(1))" @onclick="@(e => Guess(DayOfWeek.Monday))" disabled="@(!EnableButton(1))">Monday</button>
-        <button type="button" class="@(ButtonStyle(2))" @onclick="@(e => Guess(DayOfWeek.Tuesday))" disabled="@(!EnableButton(2))">Tuesday</button>
-        <button type="button" class="@(ButtonStyle(3))" @onclick="@(e => Guess(DayOfWeek.Wednesday))" disabled="@(!EnableButton(3))">Wednesday</button>
-        <button type="button" class="@(ButtonStyle(4))" @onclick="@(e => Guess(DayOfWeek.Thursday))" disabled="@(!EnableButton(4))">Thursday</button>
-        <button type="button" class="@(ButtonStyle(5))" @onclick="@(e => Guess(DayOfWeek.Friday))" disabled="@(!EnableButton(5))">Friday</button>
-        <button type="button" class="@(ButtonStyle(6))" @onclick="@(e => Guess(DayOfWeek.Saturday))" disabled="@(!EnableButton(6))">Saturday</button>
+        <div>
+            <button type="button" class="@(ButtonStyle(0))" @onclick="@(e => Guess(DayOfWeek.Sunday))" disabled="@(!EnableButton(0))">Sunday</button>
+            <button type="button" class="@(ButtonStyle(1))" @onclick="@(e => Guess(DayOfWeek.Monday))" disabled="@(!EnableButton(1))">Monday</button>
+            <button type="button" class="@(ButtonStyle(2))" @onclick="@(e => Guess(DayOfWeek.Tuesday))" disabled="@(!EnableButton(2))">Tuesday</button>
+            <button type="button" class="@(ButtonStyle(3))" @onclick="@(e => Guess(DayOfWeek.Wednesday))" disabled="@(!EnableButton(3))">Wednesday</button>
+            <button type="button" class="@(ButtonStyle(4))" @onclick="@(e => Guess(DayOfWeek.Thursday))" disabled="@(!EnableButton(4))">Thursday</button>
+            <button type="button" class="@(ButtonStyle(5))" @onclick="@(e => Guess(DayOfWeek.Friday))" disabled="@(!EnableButton(5))">Friday</button>
+            <button type="button" class="@(ButtonStyle(6))" @onclick="@(e => Guess(DayOfWeek.Saturday))" disabled="@(!EnableButton(6))">Saturday</button>
+        </div>
+        <div>&nbsp;</div>
+        @{ if (!gameManager.GuessDoomsday)
+            {
+                <div><input type="checkbox" @bind="@gameManager.HighlightDoomsday" />&nbsp;Highlight Doomsday</div>
+                if (gameManager.HighlightDoomsday)
+                {
+                    <div><input type="checkbox" @bind="@gameManager.JustThisRound" />&nbsp;Just this round</div>
+                }
+                else
+                {
+                    <div>&nbsp;</div>
+                }
+            }
+            else
+            {
+                <div>&nbsp;</div><div>&nbsp;</div>
+            }
+        }
     </div>
     <div class="score col-md-12 align-self-center text-center font-size-lg">
-        <div>Correct: @gameManager.CorrectGuesses</div>
-        <div>Total Guesses: @gameManager.TotalGuesses</div>
-        <div>Average: @GameAverage()</div>
-        <div>Elapsed: @gameManager.Elapsed?.ToString(@"mm\:ss")</div>
-    </div>
-    <div class="controls col-md-12 align-self-center text-center">
-        <button type="submit" @onclick="@(e => gameManager.Start())">New Game</button>
+        <div class="row">
+            <div class="col-md-4">Correct: @gameManager.CorrectGuesses</div>
+            <div class="col-md-4">Total Guesses: @gameManager.TotalGuesses</div>
+            <div class="col-md-4">Average: @GameAverage()</div>
+        </div>
+        <div>
+            @{ if (gameManager.Elapsed != null)
+                {
+                    <div>Elapsed: @gameManager.Elapsed?.ToString(@"mm\:ss")</div>
+                }
+                else
+                {
+                    <div>&nbsp;</div>
+                }
+            }
+        </div>
+        <div><a href="#" @onclick="@(e => Reset())">Reset Stats</a></div>
+        <div>&nbsp;</div>
     </div>
 </div>
 
@@ -31,7 +84,11 @@
 
     protected string BackgroundColor()
     {
-        if ((gameManager?.IsCorrect).HasValue)
+        if (gameManager?.StartTime == null)
+        {
+            return "game-starting";
+        }
+        else if ((gameManager?.IsCorrect).HasValue)
         {
             return gameManager.IsCorrect.Value ? "game-correct" : "game-wrong";
         }
@@ -44,7 +101,7 @@
         {
             return "0%";
         }
-        return ((int)(100 * ((float)gameManager.CorrectGuesses/(float)gameManager.TotalGuesses))).ToString() + "%";
+        return ((int)(100 * ((float)gameManager.CorrectGuesses / (float)gameManager.TotalGuesses))).ToString() + "%";
     }
 
     protected bool EnableButton(int index)
@@ -58,7 +115,14 @@
         {
             return "btn btn-winner";
         }
-        return "btn";
+        else if (!gameManager.GuessDoomsday && gameManager.HighlightDoomsday && gameManager.DoomsdayIndex == index)
+        {
+            return "btn btn-hint";
+        }
+        else
+        {
+            return "btn";
+        }
     }
 
     protected override void OnInitialized()
@@ -71,26 +135,36 @@
         gameManager.Guess(dayOfWeek);
     }
 
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    if (firstRender)
-    //    {
-    //        gameManager.Reset();
-    //    }
-    //    await base.OnAfterRenderAsync(firstRender);
-    //}
-
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
         if (firstRender)
         {
-            gameManager.Reset();
-            timer = new System.Threading.Timer(_ => Update(), null, 0, 1000);
+            Reset();
+            gameManager.Start();
         }
+    }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        Reset();
+    //        await gameManager.Start();
+
+    //    }
+
+    //    base.OnAfterRenderAsync(firstRender);
+    //}
+
+    protected void Reset()
+    {
+        gameManager.ResetStats();
+        gameManager.ResetTime();
+        timer = new System.Threading.Timer(_ => Update(), null, 0, 1000);
+        StateHasChanged();
     }
 
     public void Update() { StateHasChanged(); }
 }
 
-	
