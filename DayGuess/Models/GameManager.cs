@@ -22,7 +22,35 @@ namespace DayGuess.Models
 		private DateTime? startTime = null;
 
 		public DateTime? StartTime { get => startTime; internal set { startTime = value; container?.Update(); } }
-		public DateTime? WinTime { get; internal set; } = null;
+		public DateTime? WinTime { get => winTime; 
+			internal set 
+			{ 
+				winTime = value; 
+				if (value != null && startTime != null) 
+				{ 
+					recentTimes.Push(Elapsed.Value); 
+				} 
+			}		
+		}
+
+		public TimeSpan? AverageElapsed
+		{
+			get
+			{
+				int gameCount = recentTimes.Count();
+				if (gameCount == 0)
+				{
+					return null;
+				}
+				else
+				{
+					var winTimes = recentTimes.Where(e => e.Ticks > 0);
+					long totalTicks = winTimes.Sum(e => e.Ticks);
+					return new TimeSpan((long)(totalTicks / gameCount));
+				}
+			}
+		}
+
 		public bool HighlightDoomsday { get; set; } = false;
 		public bool JustThisRound { get; set; } = true;
 		public bool GuessDoomsday { get; set; } = false;
@@ -96,6 +124,9 @@ namespace DayGuess.Models
 		public bool? IsCorrect { get; internal set; }
 
 		public bool?[] DayGuesses { get; internal set; } = new bool?[7];
+
+		public Stack<TimeSpan> recentTimes = new Stack<TimeSpan>(100);
+		private DateTime? winTime = null;
 
 		public bool Guess(DayOfWeek day)
 		{

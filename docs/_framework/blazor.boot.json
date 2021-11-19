@@ -187,7 +187,7 @@
       "Microsoft.JSInterop.dll": "sha256-2U21ELz08tKryAM9mMlyuFaZZyvZAS03M1ZyL\/T\/YyA=",
       "Microsoft.JSInterop.WebAssembly.dll": "sha256-yqSzPJFI4ilEEeghuXNKtT9syg7UPckEK7mF53UyxM4=",
       "System.IO.Pipelines.dll": "sha256-3ET+mpR7F058YRj9YaLHOVXBqOW6iUxtIpeiKPYw4PA=",
-      "DayGuess.dll": "sha256-N4ZVauX6WrevjwMtmGehFUbCJ7xeppZ9axvdoPWeFFc="
+      "DayGuess.dll": "sha256-MsYIgE41GHIIIxuACZjTXxDFbJ8ZSJtYn4PBEDX\/Wno="
     },
     "lazyAssembly": null,
     "pdb": null,

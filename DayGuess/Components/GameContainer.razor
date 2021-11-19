@@ -57,18 +57,27 @@
     </div>
     <div class="score col-md-12 align-self-center text-center font-size-lg">
         <div class="row">
-            <div class="col-md-4">Correct: @gameManager.CorrectGuesses</div>
+            <div class="col-md-4 text-md-right">Correct: @gameManager.CorrectGuesses</div>
             <div class="col-md-4">Total Guesses: @gameManager.TotalGuesses</div>
-            <div class="col-md-4">Average: @GameAverage()</div>
+            <div class="col-md-4 text-md-left">Average: @GameAverage()</div>
         </div>
-        <div>
+        <div class="row">
             @{ if (gameManager.Elapsed != null)
                 {
-                    <div>Elapsed: @gameManager.Elapsed?.ToString(@"mm\:ss")</div>
+                    <div class="col-md-6 text-md-right">Time: @gameManager.Elapsed.Value.ToString(@"mm\:ss")</div>
                 }
                 else
                 {
-                    <div>&nbsp;</div>
+                    <div class="col-md-6 text-md-right">&nbsp;</div>
+                }
+            }
+            @{ if (gameManager.AverageElapsed != null)
+                {
+                    <div class="col-md-6 text-md-left">Average Time: @gameManager.AverageElapsed.Value.ToString(@"mm\:ss")</div>
+                }
+                else
+                {
+                    <div class="col-md-6 text-md-left">&nbsp;</div>
                 }
             }
         </div>
