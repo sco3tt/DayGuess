@@ -9,7 +9,7 @@
         <div>
             @{ if (gameManager.GuessDoomsday)
                 {
-                    <div>Identify the Doomsday (day of the week) for this year:</div>
+                    <div>Identify the <a href="https://en.wikipedia.org/wiki/Doomsday_rule" target="_blank">Doomsday</a> (day of the week) for this year:</div>
                 }
                 else
                 {
@@ -39,7 +39,7 @@
         <div>&nbsp;</div>
         @{ if (!gameManager.GuessDoomsday)
             {
-                <div><input type="checkbox" @bind="@gameManager.HighlightDoomsday" />&nbsp;Highlight Doomsday</div>
+                <div><input type="checkbox" @bind="@gameManager.HighlightDoomsday" />&nbsp;Highlight <a href="https://en.wikipedia.org/wiki/Doomsday_rule" target="_blank">Doomsday</a></div>
                 if (gameManager.HighlightDoomsday)
                 {
                     <div><input type="checkbox" @bind="@gameManager.JustThisRound" />&nbsp;Just this round</div>
